@@ -1,22 +1,10 @@
 ﻿using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Drawing;
-using Microsoft.Windows;
 using Microsoft.Win32;
-using System.IO;
 
 namespace ImageToAscii
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
 
@@ -27,16 +15,22 @@ namespace ImageToAscii
 
         private Bitmap ResizeImage(Bitmap image, int width)
         {
-            float aspectRatio = 16 / 9;
+            // <summary>
+            //  Since the bitmap class only takes whole numbers in the constructor I made a workaround for the aspect ratio
+            //  The size options will be multiples of 16 and since the difference between 16 and 9 is 7
+            //  The difference for higher multiples of 16 and 9 will be multiples of 7 as well
+            //  So this divides the width by 16 to find the multiple count then subtracts the product of 7 times that value from the width
+            // </summary>
 
-            int height = (int)(width * aspectRatio);
+            int multiple = width / 16;
+            int height = width - Math.Abs(multiple * -7);
 
-            Bitmap resizedImage = new Bitmap(width, height / 2);
+            Bitmap resizedImage = new Bitmap(width, height);
 
             using (Graphics g = Graphics.FromImage(resizedImage))
             {
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.DrawImage(image, 0, 0, width, height / 2);
+                g.DrawImage(image, 0, 0, width, height);
             }
 
             return resizedImage;
@@ -71,14 +65,31 @@ namespace ImageToAscii
 
         private void AsciiButton_Click(object sender, RoutedEventArgs e)
         {
-            Bitmap image = new Bitmap(filePath.Text);
-            //Bitmap bmp = new Bitmap(image, new System.Drawing.Size(image.Width / 20, image.Height / 20));
-            Bitmap imageToResize = ResizeImage(image, 80);
+            string? selectedSize = sizeOptions.SelectionBoxItem.ToString();
 
+            if (!string.IsNullOrWhiteSpace(filePath.Text))
+            {
+                if (selectedSize != null && selectedSize != "")
+                {
+                    int imageWidth = int.Parse(selectedSize);
 
-            string asciiImage = ConvertToAscii(imageToResize);
+                    Bitmap image = new Bitmap(filePath.Text);
+                    Bitmap imageToResize = ResizeImage(image, imageWidth);
 
-            asciiBox.Text = asciiImage;
+                    string asciiImage = ConvertToAscii(imageToResize);
+                    asciiBox.Text = asciiImage;
+                }
+
+                else
+                {
+                    MessageBox.Show("You must select a size before THE CONVERSION!");
+                }
+            }
+
+            else
+            {
+                MessageBox.Show("Must select an image to convert first!");
+            }
         }
 
         private void FileBrowse_Click(object sender, RoutedEventArgs e)
