@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Drawing;
 using Microsoft.Win32;
+using System.IO;
 
 namespace ImageToAscii
 {
@@ -51,9 +52,9 @@ namespace ImageToAscii
                     int g = pixelColor.G;
                     int b = pixelColor.B;
 
-                    Color greyScale = Color.FromArgb(r, g, b);
+                    Color grayScale = Color.FromArgb(r, g, b);
 
-                    int index = (greyScale.R * 10) / 255;
+                    int index = (grayScale.R * 10) / 255;
 
                     sb.Append(asciiChars[index]);
                 }
@@ -67,9 +68,9 @@ namespace ImageToAscii
         {
             string? selectedSize = sizeOptions.SelectionBoxItem.ToString();
 
-            if (!string.IsNullOrWhiteSpace(filePath.Text))
+            if (!string.IsNullOrWhiteSpace(filePath.Text) && File.Exists(filePath.Text))
             {
-                if (selectedSize != null && selectedSize != "")
+                if (!string.IsNullOrWhiteSpace(selectedSize))
                 {
                     int imageWidth = int.Parse(selectedSize);
 
@@ -86,9 +87,14 @@ namespace ImageToAscii
                 }
             }
 
-            else
+            else if (string.IsNullOrWhiteSpace(filePath.Text))
             {
                 MessageBox.Show("Must select an image to convert first!");
+            }
+
+            else
+            {
+                MessageBox.Show("File not found. Make sure file path is correct.");
             }
         }
 
@@ -96,9 +102,9 @@ namespace ImageToAscii
         {
             OpenFileDialog dlg = new OpenFileDialog();
 
-            dlg.ShowDialog();
-
             dlg.Filter = "JPG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|JPEG Files(*.jpeg)|*.jpeg";
+
+            dlg.ShowDialog();
 
             filePath.Text = dlg.FileName;
         }
