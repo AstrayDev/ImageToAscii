@@ -3,6 +3,9 @@ using System.Windows;
 using System.Drawing;
 using Microsoft.Win32;
 using System.IO;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Configuration.Internal;
 
 namespace ImageToAscii
 {
@@ -14,33 +17,41 @@ namespace ImageToAscii
             InitializeComponent();
         }
 
-        private Bitmap ResizeImage(Bitmap image, int width)
+        public static Bitmap ResizeImage(Image image, int width, int height)
         {
-            // <summary>
-            //  Since the bitmap class only takes whole numbers in the constructor I made a workaround for the aspect ratio
-            //  The size options will be multiples of 16 and since the difference between 16 and 9 is 7
-            //  The difference for higher multiples of 16 and 9 will be multiples of 7 as well
-            //  So this divides the width by 16 to find the multiple count then subtracts the product of 7 times that value from the width
-            // </summary>
+            var destRect = new Rectangle(0, 0, width, height);
+            var destImage = new Bitmap(width, height);
 
-            int multiple = width / 16;
-            int height = width - Math.Abs(multiple * -7);
+            destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
-            Bitmap resizedImage = new Bitmap(width, height);
-
-            using (Graphics g = Graphics.FromImage(resizedImage))
+            using (var graphics = Graphics.FromImage(destImage))
             {
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.DrawImage(image, 0, 0, width, height);
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                using (var wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+                }
             }
 
-            return resizedImage;
+            return destImage;
         }
 
         private string ConvertToAscii(Bitmap image)
         {
             StringBuilder sb = new StringBuilder();
-            string[] asciiChars = { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", "," };
+            char[] asciiChars = new char[]
+            {
+                '@', '#', '8', '&', '%', 'B', 'M', 'W', 'Q', 'R', 'E', 'N', 'H', 'K', '$', 'G', 'O', 'A', 'U', 'D', 'I', 'V', 'S', 'P', 'Z', 'Y', 'J', 'L', 'C', 'X', 'T', 'F',
+                'm', 'w', 'a', 'h', 'k', 'b', 'd', 'u', 'n', 'e', 'p', 'o', 'q', 'g', 'f', 'l', 't', 'c', 'y', 'v', 'i', 'x', 'z', 'r', 'j', 's', '1', '2', '3', '4', '5', '6', '7', '0',
+                '!', '?', '|', '{', '}', '[', ']', '(', ')', '+', '=', '<', '>', ':', ';', ',', '~', '-', '^', '_', '"', '\'', '\\', '/', '.', ' '
+            };
+
 
             for (int y = 0; y < image.Height; y++)
             {
@@ -54,7 +65,7 @@ namespace ImageToAscii
 
                     Color grayScale = Color.FromArgb(r, g, b);
 
-                    int index = (grayScale.R * 10) / 255;
+                    int index = (grayScale.R * asciiChars.Length - 1) / 255;
 
                     sb.Append(asciiChars[index]);
                 }
@@ -66,24 +77,26 @@ namespace ImageToAscii
 
         private void AsciiButton_Click(object sender, RoutedEventArgs e)
         {
-            string? selectedSize = sizeOptions.SelectionBoxItem.ToString();
+            string? textSize = sizeOptions.SelectionBoxItem.ToString();
 
             if (!string.IsNullOrWhiteSpace(filePath.Text) && File.Exists(filePath.Text))
             {
-                if (!string.IsNullOrWhiteSpace(selectedSize))
+                if (!string.IsNullOrWhiteSpace(textSize))
                 {
-                    int imageWidth = int.Parse(selectedSize);
-
+                    int selectedSize = int.Parse(textSize);
                     Bitmap image = new Bitmap(filePath.Text);
-                    Bitmap imageToResize = ResizeImage(image, imageWidth);
 
+                    int width = image.Width / selectedSize;
+                    int height = image.Height / selectedSize;
+
+                    Bitmap imageToResize = ResizeImage(image, width, height);
                     string asciiImage = ConvertToAscii(imageToResize);
                     asciiBox.Text = asciiImage;
                 }
 
                 else
                 {
-                    MessageBox.Show("You must select a size before THE CONVERSION!");
+                    MessageBox.Show("Must select a size before the CONVERSION");
                 }
             }
 
@@ -102,7 +115,7 @@ namespace ImageToAscii
         {
             OpenFileDialog dlg = new OpenFileDialog();
 
-            dlg.Filter = "JPG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|JPEG Files(*.jpeg)|*.jpeg";
+            dlg.Filter = "Image Files|*.jpg;*.jpg;*.png;*.jpeg";
 
             dlg.ShowDialog();
 
