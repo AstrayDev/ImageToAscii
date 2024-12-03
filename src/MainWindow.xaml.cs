@@ -5,7 +5,7 @@ using Microsoft.Win32;
 using System.IO;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Configuration.Internal;
+using System.Net;
 
 namespace ImageToAscii
 {
@@ -79,19 +79,50 @@ namespace ImageToAscii
         {
             string? textSize = sizeOptions.SelectionBoxItem.ToString();
 
-            if (!string.IsNullOrWhiteSpace(filePath.Text) && File.Exists(filePath.Text))
+            if (!string.IsNullOrWhiteSpace(filePath.Text))
             {
                 if (!string.IsNullOrWhiteSpace(textSize))
                 {
                     int selectedSize = int.Parse(textSize);
-                    Bitmap image = new Bitmap(filePath.Text);
 
-                    int width = image.Width / selectedSize;
-                    int height = image.Height / selectedSize;
+                    if (filePath.Text.StartsWith("https://") || filePath.Text.StartsWith("http://"))
+                    {
+                        WebClient wc = new WebClient();
+                        try
+                        {
+                            Stream stream = wc.OpenRead(filePath.Text);
+                            Bitmap image = new Bitmap(stream);
 
-                    Bitmap imageToResize = ResizeImage(image, width, height);
-                    string asciiImage = ConvertToAscii(imageToResize);
-                    asciiBox.Text = asciiImage;
+                            int width = image.Width / selectedSize;
+                            int height = image.Height / selectedSize;
+
+                            Bitmap resizedImage = ResizeImage(image, width, height);
+                            string ascii = ConvertToAscii(resizedImage);
+                            asciiBox.Text = ascii;
+
+                        } catch(WebException ex) { MessageBox.Show("Eroor: 404. Image not found"); };
+
+
+                    }
+
+                    else
+                    {
+                        if (!File.Exists(filePath.Text))
+                        {
+                            MessageBox.Show("File not found. Please check if path is correct");
+                            return;
+                        }
+
+                        Bitmap image = new Bitmap(filePath.Text);
+
+                        int width = image.Width / selectedSize;
+                        int height = image.Height / selectedSize;
+
+                        Bitmap resizedImage = ResizeImage(image, width, height);
+                        string asciiImage = ConvertToAscii(resizedImage);
+                        asciiBox.Text = asciiImage;
+                    }
+
                 }
 
                 else
