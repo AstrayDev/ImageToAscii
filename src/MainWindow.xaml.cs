@@ -85,7 +85,7 @@ namespace ImageToAscii
                 {
                     int selectedSize = int.Parse(textSize);
 
-                    if (filePath.Text.StartsWith("https://") || filePath.Text.StartsWith("http://"))
+                    if (filePath.Text.StartsWith("http"))
                     {
                         WebClient wc = new WebClient();
                         try
@@ -100,7 +100,7 @@ namespace ImageToAscii
                             string ascii = ConvertToAscii(resizedImage);
                             asciiBox.Text = ascii;
 
-                        } catch(WebException ex) { MessageBox.Show("Eroor: 404. Image not found"); };
+                        } catch(WebException) { MessageBox.Show("Eroor: 404. Image not found", "You Know how to Ctrl+C & Ctrl+V right?"); };
 
 
                     }
@@ -109,7 +109,7 @@ namespace ImageToAscii
                     {
                         if (!File.Exists(filePath.Text))
                         {
-                            MessageBox.Show("File not found. Please check if path is correct");
+                            MessageBox.Show("File not found. Please check if path is correct", "Are you stupid?");
                             return;
                         }
 
@@ -127,18 +127,12 @@ namespace ImageToAscii
 
                 else
                 {
-                    MessageBox.Show("Must select a size before the CONVERSION");
+                    MessageBox.Show("Must select a size before the CONVERSION", "Pay Attention");
                 }
             }
-
-            else if (string.IsNullOrWhiteSpace(filePath.Text))
-            {
-                MessageBox.Show("Must select an image to convert first!");
-            }
-
             else
             {
-                MessageBox.Show("File not found. Make sure file path is correct.");
+                MessageBox.Show("Must enter an image file path or url to convert first!", "Bruh");
             }
         }
 

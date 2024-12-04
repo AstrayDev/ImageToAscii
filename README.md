@@ -2,16 +2,15 @@
 
 A simple wpf app that converts an image to ascii art.
 
-:memo: There are two size options, which are multiples of 16 in an attempt of getting a 16:9 aspect ratio (I'm sure that the image files aren't meant for that but I wasn't sure how to calculate width so i went with that)
+Simple to browse for a local file or paste a url in the text box, select a size from the dropdown (the number is used to divide the image size to make it smaller if need be) then convert.
 
-:memo: The ui is awful and doesn't resize it only works if you full screen even then the buttons might be small, I miss html and css xaml is hell 
+The UI is bland and unappealing but it works so...hey y'now.
 
 
 | Features | Status |
 |------|--------|
-| Two sizes to render at | - [x] |
-| Can browse for images to convert | - [x] |
-| Appealing and dynamically resizing UI | - [ ]  |
+| Can browse for images either locally or enter a url to convert | - [x] |
+| Appealing UI | - [ ]  | 
 
 
 

@@ -5,36 +5,50 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImageToAscii"
         mc:Ignorable="d"
-        Title="MainWindow" Height="460" Width="800">
-    <Grid Margin="10,10,10,10">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+        Title="ImageToAscii" Height="460" Width="800">
 
-        <TextBox x:Name="filePath" Grid.Row="0" Margin="0,104,0,296" HorizontalAlignment="Center" Width="auto" MaxWidth="150" MinWidth="100" MaxHeight="20" RenderTransformOrigin="0.508,0.576" />
-        <Button x:Name="browseButton" Grid.Row="0" Click="FileBrowse_Click" Content="Browse" Margin="50,157,50,247"/>
-        <Button Click="AsciiButton_Click" Margin="50,208,50,196">Convert To Ascii</Button>
-        <ComboBox x:Name="sizeOptions" Margin="50,263,50,140" Text="-- Select Size --" MaxHeight="20">
-            <ComboBoxItem>1</ComboBoxItem>
-            <ComboBoxItem>2</ComboBoxItem>
-            <ComboBoxItem>4</ComboBoxItem>
-            <ComboBoxItem>6</ComboBoxItem>
-            <ComboBoxItem>8</ComboBoxItem>
-            <ComboBoxItem>10</ComboBoxItem>
-            <ComboBoxItem>12</ComboBoxItem>
-        </ComboBox>
-        <TextBlock x:Name="asciiBox" Grid.Row="1" Grid.Column="1" Width="auto" Height="auto" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="Courier New" Grid.RowSpan="2" FontSize="6"></TextBlock>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel.Resources>
+                <Style TargetType="TextBox">
+                    <Setter Property="Margin" Value="20, 10, 20, 0"></Setter>
+                    <Setter Property="Width" Value="auto"></Setter>
+                    <Setter Property="MinWidth" Value="60"></Setter>
+                    <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                </Style>
+
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="20, 10, 20, 0"></Setter>
+                    <Setter Property="Width" Value="auto"></Setter>
+                    <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                    <Setter Property="BorderBrush" Value="White"/>
+                    <Setter Property="Background" Value="#0ba6ff" />
+                </Style>
+            </StackPanel.Resources>
+
+            <TextBox x:Name="filePath" MaxWidth="140"/>
+
+            <ComboBox x:Name="sizeOptions" Grid.Row="0" VerticalAlignment="Center" Text="-- Select Size --" MaxWidth="70" >
+                <ComboBoxItem>1</ComboBoxItem>
+                <ComboBoxItem>2</ComboBoxItem>
+                <ComboBoxItem>4</ComboBoxItem>
+                <ComboBoxItem>6</ComboBoxItem>
+                <ComboBoxItem>8</ComboBoxItem>
+                <ComboBoxItem>10</ComboBoxItem>
+                <ComboBoxItem>12</ComboBoxItem>
+            </ComboBox>
+
+            <Button x:Name="browseButton" Click="FileBrowse_Click" Content="Browse" />
+            <Button Click="AsciiButton_Click">Convert To Ascii</Button>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" Margin="0, 20, 0, 0" HorizontalScrollBarVisibility="Auto">
+            <TextBlock x:Name="asciiBox" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="Courier New" FontSize="6"></TextBlock>
+        </ScrollViewer>
     </Grid>
-
-    <Window.Resources>
-
-        <Style TargetType="Button">
-            <Setter Property="Width" Value="100" />
-            <Setter Property="MaxHeight" Value="20" />
-            <Setter Property="BorderBrush" Value="White"/>
-            <Setter Property="Background" Value="#0ba6ff" />
-        </Style>
-
-    </Window.Resources>
 </Window>
