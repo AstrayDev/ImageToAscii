@@ -4,14 +4,12 @@ using System.Drawing;
 using Microsoft.Win32;
 using System.IO;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Net;
 
 namespace ImageToAscii
 {
     public partial class MainWindow : Window
     {
-
         public MainWindow()
         {
             InitializeComponent();
@@ -24,20 +22,9 @@ namespace ImageToAscii
 
             destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
-            using (var graphics = Graphics.FromImage(destImage))
-            {
-                graphics.CompositingMode = CompositingMode.SourceCopy;
-                graphics.CompositingQuality = CompositingQuality.HighQuality;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                graphics.SmoothingMode = SmoothingMode.HighQuality;
-                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-                using (var wrapMode = new ImageAttributes())
-                {
-                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
-                }
-            }
+            var graphics = Graphics.FromImage(destImage);
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel);
 
             return destImage;
         }
@@ -47,9 +34,12 @@ namespace ImageToAscii
             StringBuilder sb = new StringBuilder();
             char[] asciiChars = new char[]
             {
-                '@', '#', '8', '&', '%', 'B', 'M', 'W', 'Q', 'R', 'E', 'N', 'H', 'K', '$', 'G', 'O', 'A', 'U', 'D', 'I', 'V', 'S', 'P', 'Z', 'Y', 'J', 'L', 'C', 'X', 'T', 'F',
-                'm', 'w', 'a', 'h', 'k', 'b', 'd', 'u', 'n', 'e', 'p', 'o', 'q', 'g', 'f', 'l', 't', 'c', 'y', 'v', 'i', 'x', 'z', 'r', 'j', 's', '1', '2', '3', '4', '5', '6', '7', '0',
-                '!', '?', '|', '{', '}', '[', ']', '(', ')', '+', '=', '<', '>', ':', ';', ',', '~', '-', '^', '_', '"', '\'', '\\', '/', '.', ' '
+                '@', '#', '8', '&', '%', 'B', 'M', 'W', 'Q', 'R', 'E', 'N', 'H', 'K', '$', 'G', 'O', 'A', 'U', 'D', 'I',
+                'V', 'S', 'P', 'Z', 'Y', 'J', 'L', 'C', 'X', 'T', 'F',
+                'm', 'w', 'a', 'h', 'k', 'b', 'd', 'u', 'n', 'e', 'p', 'o', 'q', 'g', 'f', 'l', 't', 'c', 'y', 'v', 'i',
+                'x', 'z', 'r', 'j', 's', '1', '2', '3', '4', '5', '6', '7', '0',
+                '!', '?', '|', '{', '}', '[', ']', '(', ')', '+', '=', '<', '>', ':', ';', ',', '~', '-', '^', '_', '"',
+                '\'', '\\', '/', '.', ' '
             };
 
 
@@ -69,6 +59,7 @@ namespace ImageToAscii
 
                     sb.Append(asciiChars[index]);
                 }
+
                 sb.Append("\n");
             }
 
@@ -99,10 +90,13 @@ namespace ImageToAscii
                             Bitmap resizedImage = ResizeImage(image, width, height);
                             string ascii = ConvertToAscii(resizedImage);
                             asciiBox.Text = ascii;
+                        }
+                        catch (WebException)
+                        {
+                            MessageBox.Show("Eroor: 404. Image not found", "You Know how to Ctrl+C & Ctrl+V right?");
+                        }
 
-                        } catch(WebException) { MessageBox.Show("Eroor: 404. Image not found", "You Know how to Ctrl+C & Ctrl+V right?"); };
-
-
+                        ;
                     }
 
                     else
@@ -122,7 +116,6 @@ namespace ImageToAscii
                         string asciiImage = ConvertToAscii(resizedImage);
                         asciiBox.Text = asciiImage;
                     }
-
                 }
 
                 else
